@@ -222,6 +222,8 @@ const std::set<std::string> & RISCV64Arch::getHeaders() const
 void RISCV64Arch::initCodeBlock(etiss::CodeBlock & cb) const
 {
     cb.fileglobalCode().insert("#include \"Arch/RISCV64/RISCV64.h\"\n");
+	cb.fileglobalCode().insert("#include \"Arch/RISCV64/RV64IMFuncs.h\"\n");
+	// cb.functionglobalCode().insert("etiss_uint32 exception = 0;\n");
 }
 
 etiss::plugin::gdb::GDBCore & RISCV64Arch::getGDBCore()
@@ -1608,359 +1610,79 @@ return true;
 nullptr
 );
 //-------------------------------------------------------------------------------------------------------------------
-static InstructionDefinition csrrw_rd_csr_rs1(
- 		ISA32_RISCV64,
- 		"csrrw",
- 		(uint32_t)0x1073,
- 		(uint32_t) 0x707f,
- 		[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
- 		{
- 		etiss_uint64 rs1 = 0;
- 		static BitArrayRange R_rs1_0 (19,15);
- 		etiss_uint64 rs1_0 = R_rs1_0.read(ba);
- 		rs1 += rs1_0;
- 		etiss_uint64 rd = 0;
- 		static BitArrayRange R_rd_0 (11,7);
- 		etiss_uint64 rd_0 = R_rd_0.read(ba);
- 		rd += rd_0;
- 		etiss_uint64 csr = 0;
- 		static BitArrayRange R_csr_0 (31,20);
- 		etiss_uint64 csr_0 = R_csr_0.read(ba);
- 		csr += csr_0;
- 		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
- 		partInit.getRegisterDependencies().add(reg_name[rs1],64);
-  		partInit.getAffectedRegisters().add(reg_name[rd],64);
-		partInit.getAffectedRegisters().add("instructionPointer",64);
- 	partInit.code() = std::string("//csrrw\n")+
- 			"etiss_uint32 temp = 0;\n"
- 			"etiss_uint8 * tmpbuf = (etiss_uint8 *)&temp;\n"
-			#if RISCV64_Pipeline1
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
-			#if RISCV64_Pipeline2
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
+//	manual integration of generated coreDSL 2 instruction CSRRW
+//-------------------------------------------------------------------------------------------------------------------
+static InstructionDefinition csrrw_rd_rs1_csr (
+	ISA32_RISCV64,
+	"csrrw",
+	(uint32_t) 0x001073,
+	(uint32_t) 0x00707f,
+	[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
+	{
 
- 			"etiss_int64 mAddr = 0;\n"
- 			"etiss_int64 writeMask = 0;\n"
- 			"etiss_int64 writeMaskU = 0;\n"
- 			"etiss_int64 sAddr = 0;\n"
- 			"etiss_int64 writeMaskS = 0;\n"
- 			"etiss_int64 uAddr = 0;\n"
- 			"etiss_uint64 rs_val = 0;\n"
- 			"etiss_uint64 csr_val = 0;\n"
- 			"etiss_int64 writeMaskM = 0;\n"
-			"etiss_int32 ret = 0;\n"
- 			
-"rs_val = *((RISCV64*)cpu)->X[" + toString(rs1) + "];\n"
-#if RISCV64_DEBUG_CALL
-"printf(\"rs_val = %#lx\\n\",rs_val); \n"
-#endif	
-"if(" + toString(rd) + " != 0)\n"
-"{\n"
-	"csr_val = ((RISCV64*)cpu)->CSR[" + toString(csr) + "];\n"
-	#if RISCV64_DEBUG_CALL
-	"printf(\"csr_val = %#lx\\n\",csr_val); \n"
-	#endif	
-	"if(((" + toString(csr) + " == 0) || (" + toString(csr) + " == 256)) || (" + toString(csr) + " == 768))\n"
-	"{\n"
-		"uAddr = 0;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 256;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 768;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = -9223372036846388805;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = -9223372036853866189;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = -9223372036853866479;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(((" + toString(csr) + " == 68) || (" + toString(csr) + " == 324)) || (" + toString(csr) + " == 836))\n"
-	"{\n"
-		"uAddr = 68;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 324;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 836;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = 3003;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = 819;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = 273;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(((" + toString(csr) + " == 4) || (" + toString(csr) + " == 260)) || (" + toString(csr) + " == 772))\n"
-	"{\n"
-		"uAddr = 4;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 260;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 772;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = 3003;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = 819;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = 273;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(uAddr != sAddr)\n"
-	"{\n"
-		"if(((RISCV64*)cpu)->CSR[3088] == 3)\n"
-		"{\n"
-			"writeMask = writeMaskM;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"if(((RISCV64*)cpu)->CSR[3088] == 1)\n"
-		"{\n"
-			"writeMask = writeMaskS;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"if(((RISCV64*)cpu)->CSR[3088] == 0)\n"
-		"{\n"
-			"writeMask = writeMaskU;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"((RISCV64*)cpu)->CSR[uAddr] = ((((RISCV64*)cpu)->CSR[uAddr] & ~writeMask) | (rs_val & writeMask))&0xffffffffffffffff;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[uAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[uAddr]); \n"
-		#endif	
-		"((RISCV64*)cpu)->CSR[sAddr] = ((RISCV64*)cpu)->CSR[uAddr];\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[sAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[sAddr]); \n"
-		#endif	
-		"((RISCV64*)cpu)->CSR[mAddr] = ((RISCV64*)cpu)->CSR[uAddr];\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[mAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[mAddr]); \n"
-		#endif	
-	"}\n"
-	
-	"else\n"
-	"{\n"
-		"((RISCV64*)cpu)->CSR[" + toString(csr) + "] = rs_val;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[" + toString(csr) + "] = %#lx\\n\",((RISCV64*)cpu)->CSR[" + toString(csr) + "]); \n"
-		#endif	
-		// manualy added
-		"if(" + toString(csr) + " == 384)\n"
-		"{\n"
-            "ret = ETISS_SIGNAL_MMU(cpu, rs_val); \n"
-        "}\n"
-	"}\n"
-	"*((RISCV64*)cpu)->X[" + toString(rd) + "] = csr_val;\n"
-	#if RISCV64_DEBUG_CALL
-	"printf(\"*((RISCV64*)cpu)->X[" + toString(rd) + "] = %#lx\\n\",*((RISCV64*)cpu)->X[" + toString(rd) + "]); \n"
-	#endif	
-"}\n"
+// -----------------------------------------------------------------------------
 
-"else\n"
-"{\n"
-	"if(((" + toString(csr) + " == 0) || (" + toString(csr) + " == 256)) || (" + toString(csr) + " == 768))\n"
-	"{\n"
-		"uAddr = 0;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 256;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 768;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = -9223372036846388805;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = -9223372036853866189;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = -9223372036853866479;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(((" + toString(csr) + " == 68) || (" + toString(csr) + " == 324)) || (" + toString(csr) + " == 836))\n"
-	"{\n"
-		"uAddr = 68;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 324;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 836;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = 3003;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = 819;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = 273;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(((" + toString(csr) + " == 4) || (" + toString(csr) + " == 260)) || (" + toString(csr) + " == 772))\n"
-	"{\n"
-		"uAddr = 4;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"uAddr = %#lx\\n\",uAddr); \n"
-		#endif	
-		"sAddr = 260;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"sAddr = %#lx\\n\",sAddr); \n"
-		#endif	
-		"mAddr = 772;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"mAddr = %#lx\\n\",mAddr); \n"
-		#endif	
-		"writeMaskM = 3003;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskM = %#lx\\n\",writeMaskM); \n"
-		#endif	
-		"writeMaskS = 819;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskS = %#lx\\n\",writeMaskS); \n"
-		#endif	
-		"writeMaskU = 273;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"writeMaskU = %#lx\\n\",writeMaskU); \n"
-		#endif	
-	"}\n"
-	
-	"if(uAddr != sAddr)\n"
-	"{\n"
-		"if(((RISCV64*)cpu)->CSR[3088] == 3)\n"
-		"{\n"
-			"writeMask = writeMaskM;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"if(((RISCV64*)cpu)->CSR[3088] == 1)\n"
-		"{\n"
-			"writeMask = writeMaskS;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"if(((RISCV64*)cpu)->CSR[3088] == 0)\n"
-		"{\n"
-			"writeMask = writeMaskU;\n"
-			#if RISCV64_DEBUG_CALL
-			"printf(\"writeMask = %#lx\\n\",writeMask); \n"
-			#endif	
-		"}\n"
-		
-		"((RISCV64*)cpu)->CSR[uAddr] = ((((RISCV64*)cpu)->CSR[uAddr] & ~writeMask) | (rs_val & writeMask))&0xffffffffffffffff;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[uAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[uAddr]); \n"
-		#endif	
-		"((RISCV64*)cpu)->CSR[sAddr] = ((RISCV64*)cpu)->CSR[uAddr];\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[sAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[sAddr]); \n"
-		#endif	
-		"((RISCV64*)cpu)->CSR[mAddr] = ((RISCV64*)cpu)->CSR[uAddr];\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[mAddr] = %#lx\\n\",((RISCV64*)cpu)->CSR[mAddr]); \n"
-		#endif	
-	"}\n"
-	
-	"else\n"
-	"{\n"
-		"((RISCV64*)cpu)->CSR[" + toString(csr) + "] = rs_val;\n"
-		#if RISCV64_DEBUG_CALL
-		"printf(\"((RISCV64*)cpu)->CSR[" + toString(csr) + "] = %#lx\\n\",((RISCV64*)cpu)->CSR[" + toString(csr) + "]); \n"
-		#endif
-		// manualy added
-		"if(" + toString(csr) + " == 384)\n"
-		"{\n"
-            "ret = ETISS_SIGNAL_MMU(cpu, rs_val); \n"
-        "}\n"	
-	"}\n"
-"}\n"
- 			
-		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
-		"if(ret) return ret; \n"
-		
-; 
-return true;
-},
-0,
-nullptr
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+etiss_uint64 rd = 0;
+static BitArrayRange R_rd_0(11, 7);
+rd += R_rd_0.read(ba) << 0;
+etiss_uint64 rs1 = 0;
+static BitArrayRange R_rs1_0(19, 15);
+rs1 += R_rs1_0.read(ba) << 0;
+etiss_uint64 csr = 0;
+static BitArrayRange R_csr_0(31, 20);
+csr += R_csr_0.read(ba) << 0;
+
+// -----------------------------------------------------------------------------
+
+		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
+
+		partInit.code() = std::string("//CSRRW\n");
+
+// -----------------------------------------------------------------------------
+partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
+partInit.code() += "etiss_int32 ret = 0U;\n";
+partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
+partInit.code() += "etiss_uint64 xrs1 = *((RISCV64*)cpu)->X[" + std::to_string(rs1) + "];\n";
+partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrs1);\n";
+if (rd != 0U) {
+partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
+}
+partInit.code() += "if (ret) return ret\n";	// manually added
+// -----------------------------------------------------------------------------
+
+		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
+		partInit.getAffectedRegisters().add(reg_name[rd], 64);
+		partInit.getAffectedRegisters().add("instructionPointer", 32);
+
+		return true;
+	},
+	0,
+	[] (BitArray & ba, Instruction & instr)
+	{
+// -----------------------------------------------------------------------------
+etiss_uint64 rd = 0;
+static BitArrayRange R_rd_0(11, 7);
+rd += R_rd_0.read(ba) << 0;
+etiss_uint64 rs1 = 0;
+static BitArrayRange R_rs1_0(19, 15);
+rs1 += R_rs1_0.read(ba) << 0;
+etiss_uint64 csr = 0;
+static BitArrayRange R_csr_0(31, 20);
+csr += R_csr_0.read(ba) << 0;
+
+// -----------------------------------------------------------------------------
+
+		std::stringstream ss;
+// -----------------------------------------------------------------------------
+ss << "csrrw" << " # " << ba << (" [rd=" + std::to_string(rd) + " | rs1=" + std::to_string(rs1) + " | csr=" + std::to_string(csr) + "]");
+// -----------------------------------------------------------------------------
+		return ss.str();
+	}
 );
+
 //-------------------------------------------------------------------------------------------------------------------
 static InstructionDefinition blt_rs1_rs2_imm(
  		ISA32_RISCV64,
