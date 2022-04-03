@@ -8090,53 +8090,60 @@ return true;
 nullptr
 );
 //-------------------------------------------------------------------------------------------------------------------
-static InstructionDefinition sret_(
- 		ISA32_RISCV64,
- 		"sret",
- 		(uint32_t)0x10200073,
- 		(uint32_t) 0xffffffff,
- 		[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
- 		{
- 		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
-		partInit.getAffectedRegisters().add("instructionPointer",64);
- 	partInit.code() = std::string("//sret\n")+
- 			"etiss_uint32 temp = 0;\n"
- 			"etiss_uint8 * tmpbuf = (etiss_uint8 *)&temp;\n"
-			#if RISCV64_Pipeline1
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
-			#if RISCV64_Pipeline2
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
+//	manual integration of generated coreDSL 2 instruction SRET
+//-------------------------------------------------------------------------------------------------------------------
+static InstructionDefinition sret_ (
+	ISA32_RISCV64,
+	"sret",
+	(uint32_t) 0x10200073,
+	(uint32_t) 0xffffffff,
+	[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
+	{
 
-"etiss_int32 ret = 0;\n"
-"if (((RISCV64*)cpu)->CSR[3088] != (((RISCV64*)cpu)->CSR[256] & 0x100)>>8)\n"//check if PRVLVL will change, therefore leading to context-switch
-"{\n"
-	"((RISCV64*)cpu)->CSR[3088] = (((RISCV64*)cpu)->CSR[256] & 0x100)>>8;\n"//PRIVLV=SPP
-	"ret = -2;\n"//context-switch occured, flush etiss-translation-cache
-"}\n" 			
-"((RISCV64*)cpu)->CSR[256] ^= (((RISCV64*)cpu)->CSR[256] & 0x100);\n"//SPP=0
-"((RISCV64*)cpu)->CSR[256] ^= ((etiss_uint32)((((RISCV64*)cpu)->CSR[256] & 0x20)>>4)) ^ (((RISCV64*)cpu)->CSR[256] & 0x2);\n"//SIE=SPIE
-"cpu->instructionPointer = ((RISCV64*)cpu)->CSR[321];\n"//PC=SEPC
-"((RISCV64*)cpu)->CSR[768]= ((RISCV64*)cpu)->CSR[256];\n"//keep MSTATUS synchronous to SSTATUS
-"((RISCV64*)cpu)->CSR[0]=((RISCV64*)cpu)->CSR[256];\n"//keep USTATUS synchronous to SSTATUS
- 			
-		"cpu->instructionPointer = (uint64_t)cpu->instructionPointer; \n"
-		
-		"return ret;\n"
-; 
-return true;
-},
-0,
-nullptr
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
+
+		partInit.code() = std::string("//SRET\n");
+
+// -----------------------------------------------------------------------------
+partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
+partInit.code() += "etiss_int32 ret = 0U;\n";
+partInit.code() += "if (((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] != (((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] & 256UL) >> 8U) {\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] = (((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] & 256UL) >> 8U;\n";
+partInit.code() += "ret = -2U;\n";
+partInit.code() += "}\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] ^ (((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] & 256UL);\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] ^ ((((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] & 32UL) >> 4U) ^ (((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] & 2UL);\n";
+partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(321U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "];\n";
+partInit.code() += "if (ret) return ret;\n"; // manually edited
+// -----------------------------------------------------------------------------
+
+		partInit.getAffectedRegisters().add("instructionPointer", 32);
+
+		return true;
+	},
+	0,
+	[] (BitArray & ba, Instruction & instr)
+	{
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		std::stringstream ss;
+// -----------------------------------------------------------------------------
+ss << "sret" << " # " << ba << (" []");
+// -----------------------------------------------------------------------------
+		return ss.str();
+	}
 );
 //-------------------------------------------------------------------------------------------------------------------
 static InstructionDefinition wfi_(
