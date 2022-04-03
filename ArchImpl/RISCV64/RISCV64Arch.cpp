@@ -7347,52 +7347,59 @@ return true;
 nullptr
 );
 //-------------------------------------------------------------------------------------------------------------------
-static InstructionDefinition uret_(
- 		ISA32_RISCV64,
- 		"uret",
- 		(uint32_t)0x200073,
- 		(uint32_t) 0xffffffff,
- 		[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
- 		{
- 		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
-		partInit.getAffectedRegisters().add("instructionPointer",64);
- 	partInit.code() = std::string("//uret\n")+
- 			"etiss_uint32 temp = 0;\n"
- 			"etiss_uint8 * tmpbuf = (etiss_uint8 *)&temp;\n"
-			#if RISCV64_Pipeline1
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
-			#if RISCV64_Pipeline2
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
+// manual integration of generated coreDSL 2 instruction URET
+//-------------------------------------------------------------------------------------------------------------------
+static InstructionDefinition uret_ (
+	ISA32_RISCV64,
+	"uret",
+	(uint32_t) 0x200073,
+	(uint32_t) 0xffffffff,
+	[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
+	{
 
-"etiss_int32 ret = 0;\n"
-"if (((RISCV64*)cpu)->CSR[3088] != 0)\n"//check if PRVLVL will change, therefore leading to context-switch
-"{\n"
-	"((RISCV64*)cpu)->CSR[3088] = 0;\n"//PRIVLV=0
-	"ret = -2;\n"//context-switch occured, flush etiss-translation-cache
-"}\n" 			
-"((RISCV64*)cpu)->CSR[0] ^= ((etiss_uint32)((((RISCV64*)cpu)->CSR[0] & 0x10)>>4)) ^ (((RISCV64*)cpu)->CSR[0] & 0x1);\n"//UIE=UPIE
-"cpu->instructionPointer = ((RISCV64*)cpu)->CSR[65];\n"//PC=UEPC
-"((RISCV64*)cpu)->CSR[768]= ((RISCV64*)cpu)->CSR[0];\n"//keep MSTATUS synchronous to USTATUS
-"((RISCV64*)cpu)->CSR[256]=((RISCV64*)cpu)->CSR[0];\n"//keep SSTATUS synchronous to USTATUS
- 			
-		"cpu->instructionPointer = (uint64_t)cpu->instructionPointer; \n"
-		
-		"return ret;\n"
-; 
-return true;
-},
-0,
-nullptr
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
+
+		partInit.code() = std::string("//URET\n");
+
+// -----------------------------------------------------------------------------
+partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
+partInit.code() += "etiss_int32 ret = 0U;\n";
+partInit.code() += "if (((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] != 0UL) {\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] = 0UL;\n";
+partInit.code() += "ret = -2U;\n";
+partInit.code() += "}\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] ^ ((((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] & 16UL) >> 4U) ^ (((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] & 1UL);\n";
+partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(65U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "];\n";
+partInit.code() += "if (ret) return ret;\n";
+// -----------------------------------------------------------------------------
+
+		partInit.getAffectedRegisters().add("instructionPointer", 32);
+
+		return true;
+	},
+	0,
+	[] (BitArray & ba, Instruction & instr)
+	{
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		std::stringstream ss;
+// -----------------------------------------------------------------------------
+ss << "uret" << " # " << ba << (" []");
+// -----------------------------------------------------------------------------
+		return ss.str();
+	}
 );
 //-------------------------------------------------------------------------------------------------------------------
 static InstructionDefinition fadd_s_rd_frs1_frs2(
@@ -8317,53 +8324,60 @@ return true;
 nullptr
 );
 //-------------------------------------------------------------------------------------------------------------------
-static InstructionDefinition mret_(
- 		ISA32_RISCV64,
- 		"mret",
- 		(uint32_t)0x30200073,
- 		(uint32_t) 0xffffffff,
- 		[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
- 		{
- 		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
-		partInit.getAffectedRegisters().add("instructionPointer",64);
- 	partInit.code() = std::string("//mret\n")+
- 			"etiss_uint32 temp = 0;\n"
- 			"etiss_uint8 * tmpbuf = (etiss_uint8 *)&temp;\n"
-			#if RISCV64_Pipeline1
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
-			#if RISCV64_Pipeline2
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
+// manual integration of generated coreDSL 2 instruction MRET
+//-------------------------------------------------------------------------------------------------------------------
+static InstructionDefinition mret_ (
+	ISA32_RISCV64,
+	"mret",
+	(uint32_t) 0x30200073,
+	(uint32_t) 0xffffffff,
+	[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
+	{
 
-"etiss_int32 ret = 0;\n"
-"if (((RISCV64*)cpu)->CSR[3088] != (((RISCV64*)cpu)->CSR[768] & 0x1800)>>11)\n"//check if PRVLVL will change, therefore leading to context-switch
-"{\n"
-	"((RISCV64*)cpu)->CSR[3088] = (((RISCV64*)cpu)->CSR[768] & 0x1800)>>11;\n"//PRIVLV=MPP
-	"ret = -2;\n"//context-switch occured, flush etiss-translation-cache
-"}\n"		
-"((RISCV64*)cpu)->CSR[768] ^= (((RISCV64*)cpu)->CSR[768] & 0x1800);\n"//MPP=0
-"((RISCV64*)cpu)->CSR[768] ^= ((etiss_uint32)((((RISCV64*)cpu)->CSR[768] & 0x80)>>4)) ^ (((RISCV64*)cpu)->CSR[768] & 0x8);\n"//MIE=MPIE
-"cpu->instructionPointer = ((RISCV64*)cpu)->CSR[833];\n"//PC=MEPC
-"((RISCV64*)cpu)->CSR[0]= ((RISCV64*)cpu)->CSR[768];\n"//keep USTATUS synchronous to MSTATUS
-"((RISCV64*)cpu)->CSR[256]=((RISCV64*)cpu)->CSR[768];\n"//keep SSTATUS synchronous to MSTATUS
- 			
-		"cpu->instructionPointer = (uint64_t)cpu->instructionPointer; \n"
-		
-		"return ret;\n"
-; 
-return true;
-},
-0,
-nullptr
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
+
+		partInit.code() = std::string("//MRET\n");
+
+// -----------------------------------------------------------------------------
+partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
+partInit.code() += "etiss_int32 ret = 0U;\n";
+partInit.code() += "if (((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] != (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 6144UL) >> 11U) {\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(3088U) + "] = (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 6144UL) >> 11U;\n";
+partInit.code() += "ret = -2U;\n";
+partInit.code() += "}\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] ^ (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 6144UL);\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] ^ ((((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 128UL) >> 4U) ^ (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 8UL);\n";
+partInit.code() += "cpu->instructionPointer = ((RV64IM*)cpu)->CSR[" + std::to_string(833U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
+partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
+partInit.code() += "if (ret) return ret;\n";
+// -----------------------------------------------------------------------------
+
+		partInit.getAffectedRegisters().add("instructionPointer", 32);
+
+		return true;
+	},
+	0,
+	[] (BitArray & ba, Instruction & instr)
+	{
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+		std::stringstream ss;
+// -----------------------------------------------------------------------------
+ss << "mret" << " # " << ba << (" []");
+// -----------------------------------------------------------------------------
+		return ss.str();
+	}
 );
 //-------------------------------------------------------------------------------------------------------------------
 static InstructionDefinition sfence_vma_(
