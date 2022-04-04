@@ -1650,7 +1650,7 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret\n";	// manually added
+partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
