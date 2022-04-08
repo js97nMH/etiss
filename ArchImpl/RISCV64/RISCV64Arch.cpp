@@ -1650,7 +1650,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
@@ -2289,7 +2288,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add(reg_name[rd], 64);
@@ -2574,7 +2572,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add(reg_name[rd], 64);
@@ -2968,7 +2965,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add(reg_name[rd], 64);
@@ -3388,7 +3384,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
@@ -3809,7 +3804,6 @@ partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_st
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
-partInit.code() += "if (ret) return ret;\n";	// manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
@@ -7394,7 +7388,7 @@ partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV
 partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(833U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
-partInit.code() += "return ret;\n";
+partInit.code() += "return ret;\n"; // manually added
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add("instructionPointer", 32);
