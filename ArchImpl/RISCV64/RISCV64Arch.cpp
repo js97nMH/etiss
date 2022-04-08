@@ -6416,7 +6416,7 @@ partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64
 partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(65U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "];\n";
-partInit.code() += "if (ret) return ret;\n";
+partInit.code() += "return ret;\n";
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add("instructionPointer", 32);
@@ -7167,7 +7167,7 @@ partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV
 partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(321U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "];\n";
-partInit.code() += "if (ret) return ret;\n"; // manually edited
+partInit.code() += "return ret;\n"; // manually edited
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add("instructionPointer", 32);
@@ -7394,7 +7394,7 @@ partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV
 partInit.code() += "cpu->instructionPointer = ((RV64IM*)cpu)->CSR[" + std::to_string(833U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
-partInit.code() += "if (ret) return ret;\n";
+partInit.code() += "return ret;\n";
 // -----------------------------------------------------------------------------
 
 		partInit.getAffectedRegisters().add("instructionPointer", 32);
