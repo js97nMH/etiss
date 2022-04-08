@@ -85,8 +85,9 @@ struct RISCV64 {
 typedef struct RISCV64 RISCV64; // convenient use of X instead of struct X in generated C code
 
 // manually added
-extern int32_t ETISS_SIGNAL_MMU(ETISS_CPU *cpu, etiss_uint64 mmu_signal_);
-extern void ETISS_SIGNAL_TLB_FLUSH(ETISS_CPU *cpu);
+extern int32_t ETISS_SIGNAL_MMU(ETISS_CPU *cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint64 mmu_signal_);
+extern void ETISS_TLB_FLUSH(ETISS_CPU *cpu, ETISS_System * const system, void * const * const plugin_pointers);
+extern void ETISS_TLB_EVICT(ETISS_CPU *cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint64 vaddr_, etiss_uint64 asid_);
 
 #ifdef __cplusplus
 } // extern "C"

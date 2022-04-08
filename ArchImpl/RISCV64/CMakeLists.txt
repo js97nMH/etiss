@@ -52,5 +52,6 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
     RISCV64MMU.h
     RISCV64Timer.cpp
     RISCV64Timer.h
+    RV64IMFuncs.h
 )
 ETISSPluginArch(${PROJECT_NAME})

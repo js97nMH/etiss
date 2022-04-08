@@ -49,9 +49,22 @@ if (csr == 3U) {
 }
 }
 if (csr == 384U) {
-return ETISS_SIGNAL_MMU(cpu, val);
+return ETISS_SIGNAL_MMU(cpu, system, plugin_pointers, val);
 }
 return 0U;
+}
+
+#endif
+
+#ifndef ETISS_ARCH_STATIC_FN_ONLY
+
+static inline etiss_int32 flush_tlb (ETISS_CPU * const cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint64 vaddr, etiss_uint64 asid)
+{
+if (vaddr == 0UL) {
+return ETISS_TLB_FLUSH(cpu, system, plugin_pointers);
+} else {
+return ETISS_TLB_EVICT(cpu, system, plugin_pointers, vaddr, asid);
+}
 }
 
 #endif

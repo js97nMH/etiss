@@ -7415,65 +7415,73 @@ ss << "mret" << " # " << ba << (" []");
 		return ss.str();
 	}
 );
-//-------------------------------------------------------------------------------------------------------------------
-static InstructionDefinition sfence_vma_(
- 		ISA32_RISCV64,
- 		"sfence.vma",
- 		(uint32_t)0x12000073,
- 		(uint32_t) 0xfe007fff,
- 		[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
- 		{
- 		etiss_uint64 rs2 = 0;
- 		static BitArrayRange R_rs2_0 (24,20);
- 		etiss_uint64 rs2_0 = R_rs2_0.read(ba);
- 		rs2 += rs2_0;
- 		etiss_uint64 rs1 = 0;
- 		static BitArrayRange R_rs1_0 (19,15);
- 		etiss_uint64 rs1_0 = R_rs1_0.read(ba);
- 		rs1 += rs1_0;
- 		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
-  		partInit.getAffectedRegisters().add(reg_name[2],64);
-  		partInit.getAffectedRegisters().add(reg_name[3],64);
-		partInit.getAffectedRegisters().add("instructionPointer",64);
- 	partInit.code() = std::string("//sfence.vma\n")+
- 			"etiss_uint32 temp = 0;\n"
- 			"etiss_uint8 * tmpbuf = (etiss_uint8 *)&temp;\n"
-			#if RISCV64_Pipeline1
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
-			#if RISCV64_Pipeline2
-			"etiss_uint32 resource_time [100] = {1, 1, 1, 3, 1, 1, 1, 1, 4};\n"
-			"etiss_uint32 resources [100][100] = {{0, 1}, {2}, {5}, {6, 7}};\n"
-			"etiss_uint32 num_stages = 4;\n"
-			"etiss_uint32 num_resources[100] = {2, 1, 1, 2};\n"
-			"handleResources(resource_time, resources, num_stages, num_resources, cpu);\n"
-			#endif
 
- 			
-"((RISCV64*)cpu)->FENCE[2] = " + toString(rs1) + ";\n"
-#if RISCV64_DEBUG_CALL
-"printf(\"((RISCV64*)cpu)->FENCE[2] = %#lx\\n\",((RISCV64*)cpu)->FENCE[2]); \n"
-#endif	
-"((RISCV64*)cpu)->FENCE[3] = " + toString(rs2) + ";\n"
-#if RISCV64_DEBUG_CALL
-"printf(\"((RISCV64*)cpu)->FENCE[3] = %#lx\\n\",((RISCV64*)cpu)->FENCE[3]); \n"
-#endif	
- 			
-		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
-		// manually added
-		"ETISS_SIGNAL_TLB_FLUSH(cpu);\n" // signal tlb flush to MMU
-		"return -2;\n" // return RELOADBLOCKS to flush translation cache
-		
-; 
-return true;
-},
-0,
-nullptr
+//-------------------------------------------------------------------------------------------------------------------
+//	manual integration of generated coreDSL 2 instruction SFENCE_VMA
+//-------------------------------------------------------------------------------------------------------------------
+static InstructionDefinition sfence_vma_rs1_rs2 (
+	ISA32_RISCV64,
+	"sfence_vma",
+	(uint32_t) 0x12000073,
+	(uint32_t) 0xfe007fff,
+	[] (BitArray & ba,etiss::CodeSet & cs,InstructionContext & ic)
+	{
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+etiss_uint64 rs1 = 0;
+static BitArrayRange R_rs1_0(19, 15);
+rs1 += R_rs1_0.read(ba) << 0;
+etiss_uint64 rs2 = 0;
+static BitArrayRange R_rs2_0(24, 20);
+rs2 += R_rs2_0.read(ba) << 0;
+
+// -----------------------------------------------------------------------------
+
+		CodePart & partInit = cs.append(CodePart::INITIALREQUIRED);
+
+		partInit.code() = std::string("//SFENCE_VMA\n");
+
+// -----------------------------------------------------------------------------
+partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
+partInit.code() += "((RISCV64*)cpu)->FENCE[" + std::to_string(2U) + "] = " + std::to_string(rs1) + ";\n";
+partInit.code() += "((RISCV64*)cpu)->FENCE[" + std::to_string(3U) + "] = " + std::to_string(rs2) + ";\n";
+partInit.code() += "etiss_uint64 vaddr = *((RISCV64*)cpu)->X[" + std::to_string(rs1) + "];\n";
+partInit.code() += "etiss_uint64 asid = *((RISCV64*)cpu)->X[" + std::to_string(rs2) + "];\n";
+partInit.code() += "etiss_int32 ret = flush_tlb(cpu, system, plugin_pointers, vaddr, asid);\n";
+partInit.code() += "return ret;\n"; // manually added
+// -----------------------------------------------------------------------------
+
+		partInit.getRegisterDependencies().add(reg_name[rs1], 64);
+		partInit.getRegisterDependencies().add(reg_name[rs2], 64);
+		partInit.getAffectedRegisters().add("instructionPointer", 32);
+
+		return true;
+	},
+	0,
+	[] (BitArray & ba, Instruction & instr)
+	{
+// -----------------------------------------------------------------------------
+etiss_uint64 rs1 = 0;
+static BitArrayRange R_rs1_0(19, 15);
+rs1 += R_rs1_0.read(ba) << 0;
+etiss_uint64 rs2 = 0;
+static BitArrayRange R_rs2_0(24, 20);
+rs2 += R_rs2_0.read(ba) << 0;
+
+// -----------------------------------------------------------------------------
+
+		std::stringstream ss;
+// -----------------------------------------------------------------------------
+ss << "sfence_vma" << " # " << ba << (" [rs1=" + std::to_string(rs1) + " | rs2=" + std::to_string(rs2) + "]");
+// -----------------------------------------------------------------------------
+		return ss.str();
+	}
 );
+
 //-------------------------------------------------------------------------------------------------------------------
 static InstructionDefinition fmul_d_rd_frs1_frs2(
  		ISA32_RISCV64,
