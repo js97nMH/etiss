@@ -33,6 +33,7 @@
 #define ETISS_RISCV64Arch_RISCV64_H_
 #include <stdio.h>
 #include "etiss/jit/CPU.h"
+#include "etiss/jit/System.h"
 
 #ifdef __cplusplus
 extern "C" {
