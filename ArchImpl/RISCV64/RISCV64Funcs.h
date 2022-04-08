@@ -60,11 +60,7 @@ return 0U;
 
 static inline etiss_int32 flush_tlb (ETISS_CPU * const cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint64 vaddr, etiss_uint64 asid)
 {
-if (vaddr == 0UL) {
 return ETISS_TLB_FLUSH(cpu, system, plugin_pointers);
-} else {
-return ETISS_TLB_EVICT(cpu, system, plugin_pointers, vaddr, asid);
-}
 }
 
 #endif

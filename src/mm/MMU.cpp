@@ -268,12 +268,4 @@ extern "C"
         core->getMMU()->GetTLB()->Flush();
         return etiss::RETURNCODE::RELOADBLOCKS;
     }
-
-    int32_t ETISS_TLB_EVICT(ETISS_CPU *cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint64 vaddr_, etiss_uint64 asid_)
-    {
-        CPUCore *core = (CPUCore *)cpu->_etiss_private_handle_;
-        int32_t fault = core->getMMU()->GetTLB()->EvictPTE(vaddr_ >> 12); // hot fix, needs a function like SignalMMU
-        if (fault != 0) return etiss::RETURNCODE::GENERALERROR;
-        return etiss::RETURNCODE::RELOADBLOCKS;
-    }
 }
