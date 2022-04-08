@@ -70,7 +70,7 @@ class PTE
   public:
     PTE(){};
 
-    PTE(uint64_t pte) { Update(pte, 0); }
+    PTE(uint64_t pte) { Update(pte); }
 
     // PTE(const PTE & pte_cp_){
     // 	Update(pte_cp_.pte_val_);
@@ -88,7 +88,7 @@ class PTE
      * @brief Update the PTE with a new value.
      *
      */
-    void Update(uint64_t new_pte, uint64_t addr);
+    void Update(uint64_t new_pte);
 
     /**
      * @brief Get the bit field value with its name
@@ -118,8 +118,6 @@ class PTE
 
     uint64_t GetPPN() const { return ppn_val_; }
 
-    uint64_t GetAddr() const { return pte_addr_; }
-
   private:
     uint64_t GenerateMask(uint64_t len) const
     {
@@ -139,7 +137,6 @@ class PTE
 
     uint64_t ppn_val_;
     uint64_t pte_val_;
-    uint64_t pte_addr_;
 };
 
 } // namespace mm

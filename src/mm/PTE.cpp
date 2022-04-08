@@ -59,7 +59,7 @@ namespace etiss
 namespace mm
 {
 
-void PTE::Update(uint64_t new_pte, uint64_t addr)
+void PTE::Update(uint64_t new_pte)
 {
 
     if (PTEFormat::Instance().GetFormatMap().find(std::string("PPN")) == PTEFormat::Instance().GetFormatMap().end())
@@ -80,7 +80,7 @@ void PTE::Update(uint64_t new_pte, uint64_t addr)
     }
 
     ppn_val_ = new_pte >> bit_field.second;
-    pte_addr_ = addr;
+    ;
     pte_val_ = new_pte;
 }
 
