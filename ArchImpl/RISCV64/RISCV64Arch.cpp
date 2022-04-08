@@ -222,7 +222,7 @@ const std::set<std::string> & RISCV64Arch::getHeaders() const
 void RISCV64Arch::initCodeBlock(etiss::CodeBlock & cb) const
 {
     cb.fileglobalCode().insert("#include \"Arch/RISCV64/RISCV64.h\"\n");
-	cb.fileglobalCode().insert("#include \"Arch/RISCV64/RV64IMFuncs.h\"\n");
+	cb.fileglobalCode().insert("#include \"Arch/RISCV64/RISCV64Funcs.h\"\n");
 	// cb.functionglobalCode().insert("etiss_uint32 exception = 0;\n");
 }
 
