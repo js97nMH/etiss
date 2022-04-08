@@ -7391,7 +7391,7 @@ partInit.code() += "ret = -2U;\n";
 partInit.code() += "}\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] ^ (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 6144UL);\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] ^ ((((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 128UL) >> 4U) ^ (((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "] & 8UL);\n";
-partInit.code() += "cpu->instructionPointer = ((RV64IM*)cpu)->CSR[" + std::to_string(833U) + "];\n";
+partInit.code() += "cpu->instructionPointer = ((RISCV64*)cpu)->CSR[" + std::to_string(833U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(0U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
 partInit.code() += "((RISCV64*)cpu)->CSR[" + std::to_string(256U) + "] = ((RISCV64*)cpu)->CSR[" + std::to_string(768U) + "];\n";
 partInit.code() += "return ret;\n";
