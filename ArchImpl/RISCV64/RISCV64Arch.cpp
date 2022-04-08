@@ -3529,7 +3529,13 @@ static InstructionDefinition flw_rd_imm_xrs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -3639,7 +3645,13 @@ static InstructionDefinition fsw_rs2_imm_xrs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -4179,7 +4191,13 @@ static InstructionDefinition fld_rd_imm_rs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -4289,7 +4307,13 @@ static InstructionDefinition fsd_rs2_imm_rs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 4 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -15926,7 +15950,13 @@ static InstructionDefinition c_fld_rd_uimm_8_rs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 2 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -16015,7 +16045,13 @@ static InstructionDefinition c_fldsp_rd_uimm_x2_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 2 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -17354,7 +17390,13 @@ static InstructionDefinition c_fsd_rs2_uimm_8_rs1_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 2 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
@@ -17427,7 +17469,13 @@ static InstructionDefinition c_fsdsp_rs2_uimm_x2_(
  			
 		"cpu->instructionPointer = " +toString((uint64_t)(ic.current_address_+ 2 ))+"ULL; \n"
 		
-		"return exception;\n"
+		// manually added
+		"if (exception)\n"
+		"{\n"
+			"((RISCV64*)cpu)->CSR[0x143] = offs;\n"
+			"((RISCV64*)cpu)->CSR[0x343] = offs;\n"
+			"return exception;\n"
+		"}\n"
 ; 
 return true;
 },
