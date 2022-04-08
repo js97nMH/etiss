@@ -88,6 +88,12 @@ class PTE
      * @brief Update the PTE with a new value.
      *
      */
+    void Update(uint64_t new_pte);
+
+    /**
+     * @brief Update the PTE with a new value and the PTEs physical address.
+     *
+     */
     void Update(uint64_t new_pte, uint64_t addr);
 
     /**
