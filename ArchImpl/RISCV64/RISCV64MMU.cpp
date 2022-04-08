@@ -149,7 +149,7 @@ int32_t RISCV64MMU::WalkPageTable(uint64_t vma, MM_ACCESS access)
             if ((fault = system_->dread(system_->handle, cpu_, addr, buffer, PTESIZE)))
                 return fault;
             // A new leaf pte value is read from page directory
-            leaf_pte.Update(leaf_pte_val);
+            leaf_pte.Update(leaf_pte_val, addr);
 
             if ((0 == leaf_pte.GetByName("V")) || ((0 == leaf_pte.GetByName("R")) && (1 == leaf_pte.GetByName("W"))))
             {
@@ -171,22 +171,6 @@ int32_t RISCV64MMU::WalkPageTable(uint64_t vma, MM_ACCESS access)
 
         for (int tmp_i = i; tmp_i > 0; --tmp_i)
         {
-        }
-
-        if (0 == leaf_pte.GetByName("A"))
-        {
-            leaf_pte_val |= PTE_A;
-            leaf_pte.Update(leaf_pte_val);
-            if ((fault = system_->dwrite(system_->handle, cpu_, addr, buffer, PTESIZE)))
-                return fault;
-        }
-
-        if ((0 == leaf_pte.GetByName("D")) && (W_ACCESS == access))
-        {
-            leaf_pte_val |= PTE_D;
-            leaf_pte.Update(leaf_pte_val);
-            if ((fault = system_->dwrite(system_->handle, cpu_, addr, buffer, PTESIZE)))
-                return fault;
         }
 
         // TODO: PMA, PMP check should be implemented later on.
@@ -285,4 +269,16 @@ int32_t RISCV64MMU::CheckProtection(const PTE &pte, MM_ACCESS access)
         return etiss::RETURNCODE::INSTR_PAGEFAULT;
     }
     return etiss::RETURNCODE::NOERROR;
+}
+
+int32_t RISCV64MMU::UpdatePTEFlags(PTE &pte, etiss::mm::MM_ACCESS access)
+{
+    uint64_t addr = pte.GetAddr();
+    etiss_int32 fault = etiss::RETURNCODE::NOERROR;
+
+    if (0 == pte.GetByName("A")) pte.SetFlagByName("A", 1);
+    if ((0 == pte.GetByName("D")) && (W_ACCESS == access)) pte.SetFlagByName("D", 1);
+
+    if (fault = system_->dwrite(system_->handle, cpu_, addr, (unsigned char *)pte.Get(), PTESIZE))
+        return fault;
 }
