@@ -33,7 +33,7 @@ return ((RISCV64*)cpu)->CSR[csr];
 
 #ifndef ETISS_ARCH_STATIC_FN_ONLY
 
-static inline etiss_int32 csr_write (ETISS_CPU * const cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint32 csr, etiss_uint64 val)
+static inline void csr_write (ETISS_CPU * const cpu, ETISS_System * const system, void * const * const plugin_pointers, etiss_uint32 csr, etiss_uint64 val)
 {
 if (csr == 1U) {
 ((RISCV64*)cpu)->CSR[3] = (((RISCV64*)cpu)->CSR[3U] & 224UL) | (val & 31UL);
@@ -49,7 +49,7 @@ if (csr == 3U) {
 }
 }
 if (csr == 384U) {
-return ETISS_SIGNAL_MMU(cpu, system, plugin_pointers, val);
+etiss_int32 tmp = ETISS_SIGNAL_MMU(cpu, system, plugin_pointers, val);
 }
 return 0U;
 }

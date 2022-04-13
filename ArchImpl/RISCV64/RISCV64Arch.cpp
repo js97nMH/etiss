@@ -1643,10 +1643,9 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
 partInit.code() += "etiss_uint64 xrs1 = *((RISCV64*)cpu)->X[" + std::to_string(rs1) + "];\n";
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrs1);\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrs1);\n";
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
@@ -2282,9 +2281,8 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", " + std::to_string((etiss_uint64)(zimm)) + ");\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", " + std::to_string((etiss_uint64)(zimm)) + ");\n";
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
 }
@@ -2564,10 +2562,9 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
 if (zimm != 0U) {
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd | " + std::to_string((etiss_uint64)(zimm)) + ");\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd | " + std::to_string((etiss_uint64)(zimm)) + ");\n";
 }
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
@@ -2957,10 +2954,9 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
 if (zimm != 0U) {
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd & " + std::to_string(~(((etiss_uint64)(zimm)))) + ");\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd & " + std::to_string(~(((etiss_uint64)(zimm)))) + ");\n";
 }
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
@@ -3375,11 +3371,10 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
 partInit.code() += "etiss_uint64 xrs1 = *((RISCV64*)cpu)->X[" + std::to_string(rs1) + "];\n";
 if (rs1 != 0U) {
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd | xrs1);\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd | xrs1);\n";
 }
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
@@ -3807,11 +3802,10 @@ csr += R_csr_0.read(ba) << 0;
 
 // -----------------------------------------------------------------------------
 partInit.code() += "cpu->instructionPointer = " + std::to_string(ic.current_address_ + 4UL) + ";\n";
-partInit.code() += "etiss_int32 ret = 0U;\n";
 partInit.code() += "etiss_uint64 xrd = csr_read(cpu, system, plugin_pointers, " + std::to_string(csr) + ");\n";
 partInit.code() += "etiss_uint64 xrs1 = *((RISCV64*)cpu)->X[" + std::to_string(rs1) + "];\n";
 if (rs1 != 0U) {
-partInit.code() += "ret = csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd & ~(xrs1));\n";
+partInit.code() += "csr_write(cpu, system, plugin_pointers, " + std::to_string(csr) + ", xrd & ~(xrs1));\n";
 }
 if (rd != 0U) {
 partInit.code() += "*((RISCV64*)cpu)->X[" + std::to_string(rd) + "] = xrd;\n";
