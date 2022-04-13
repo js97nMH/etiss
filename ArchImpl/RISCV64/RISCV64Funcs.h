@@ -51,7 +51,6 @@ if (csr == 3U) {
 if (csr == 384U) {
 etiss_int32 tmp = ETISS_SIGNAL_MMU(cpu, system, plugin_pointers, val);
 }
-return 0U;
 }
 
 #endif
